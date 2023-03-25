@@ -87,6 +87,23 @@ sentences = np.array([
     "Thank you very much!"
 ])
 
+trainLabels = [
+    "Hello, how are you?",
+    "What's up?",
+    "I need some help.",
+    "Can you help me please?",
+    "Thank you very much!"
+]
+
+testLabels = [
+    "Hello, how are you?",
+    "What's up?",
+    "I need some help.",
+    "Can you help me please?",
+    "Thank you very much!"
+]
+
+
 text_list = sentences.tolist()
 
 tokenizer = Tokenizer()
@@ -114,13 +131,14 @@ def preprocess_text(text):
     return padded_tokens
 
 def chatbot_response(model, tokenizer, input_text):
-    
-
+    response = ""
     label_encoder = LabelEncoder()
-    labels = ['Hello World', 'How are you?']
-    label_encoder.fit_transform(labels)
+    all_labels = set(trainLabels + testLabels) # combine train and test labels
+    label_encoder.fit(list(all_labels))
     # Encode the categorical labels into numerical labels
-    encoded_labels = label_encoder.transform(labels)
+    # transform the labels
+    train_labels_encoded = label_encoder.transform(trainLabels)
+    test_labels_encoded = label_encoder.transform(testLabels)
 
     with open('intents.json') as file:
         intents = json.load(file)
@@ -142,9 +160,7 @@ def chatbot_response(model, tokenizer, input_text):
         if intent['tag'] == label_encoder.inverse_transform([predicted_class])[0]:
             response = random.choice(intent['responses'])
             break
-
     return response
-
 
 # Load the trained model and tokenizer
 model = load_model('chatbot_model.h5')
